@@ -3,6 +3,18 @@ workflows:
   build_test_deploy:
     jobs:
       - test
+      - publish_latest:
+          context: docker-hub
+          requires:
+            - test
+          filters:
+             branches:
+               only: 
+                 - master
+      - build_children:
+          context: circle-api
+          requires:
+            - publish_latest
 
 version: 2
 jobs:
@@ -31,9 +43,44 @@ jobs:
             # Important, change from mount to work on remote docker, see https://github.com/aelsabbahy/goss/pull/271
             # If using machine image you do not need this.
             export GOSS_FILES_STRATEGY=cp
-            ./run-tests.sh circleci
+            ./run-tests.sh circleci keepimage
+      - run:
+          name: Save docker image
+          command: |
+            mkdir -p workspace
+            docker save -o workspace/steamcache-ubuntu-nginx.tar steamcache/ubuntu-nginx:goss-test
+      - persist_to_workspace:
+          root: workspace
+          paths:
+            steamcache-ubuntu-nginx.tar
       - store_test_results:
           path: reports
       - store_artifacts:
           path: reports
           destination: reports
+  publish_latest:
+    docker:
+      - image: circleci/python:2-jessie
+    steps:
+      - setup_remote_docker:   # (2)
+          docker_layer_caching: true # (3)
+      - attach_workspace:
+          at: /tmp/workspace
+      - run:
+          name: "Deploy latest to docker hub"
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker load -i /tmp/workspace/steamcache-ubuntu-nginx.tar
+            docker tag steamcache/ubuntu-nginx:goss-test steamcache/ubuntu-nginx:latest
+            docker push steamcache/ubuntu-nginx:latest
+  build_children:
+    docker:
+      - image: circleci/python:2-jessie
+    steps:
+      - run:
+          name: "Request API to build children"
+          command: |
+              for child in "generic"; do
+                 echo "Asking API to trigger build for $child"
+                 curl -X POST --header "Content-Type: application/json" -d '{"branch":"master"}' https://circleci.com/api/v1.1/project/github/steamcache/$child/build?circle-token=${CIRCLE_API_USER_TOKEN}
+              done

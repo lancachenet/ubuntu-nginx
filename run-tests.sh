@@ -13,6 +13,10 @@ case $1 in
   circleci)
     shift;
     mkdir -p ./reports/goss
+	if [[ "$1" == "keepimage" ]]; then
+		KEEPIMAGE=true
+		shift
+	fi
     export GOSS_OPTS="$GOSS_OPTS --format junit"
 	dgoss run $@ steamcache/ubuntu-nginx:goss-test > reports/goss/report.xml
 	#store result for exit code
@@ -23,10 +27,14 @@ case $1 in
 	sed -i '/<system-err>.*<\/system-err>/d' reports/goss/report.xml
     ;;
   *)
+	if [[ "$1" == "keepimage" ]]; then
+		KEEPIMAGE=true
+		shift
+	fi
 	dgoss run $@ steamcache/ubuntu-nginx:goss-test
 	RESULT=$?
     ;;
 esac
-docker rmi steamcache/ubuntu-nginx:goss-test
+[[ "$KEEPIMAGE" == "true" ]] || docker rmi steamcache/ubuntu-nginx:goss-test
 
 exit $RESULT
