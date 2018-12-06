@@ -1,0 +1,52 @@
+#!/usr/bin/env bash
+
+#
+#  SSL Configuration.
+#
+
+#If no SSL provided then will exit and continue.
+if [[ ! -e  "$SSL_KEY" ]] && [[ ! -e "$SSL_CERT" ]]; then
+  echo "Not enabling SSL as neither key nor cert provided."
+  exit 0
+
+#If key and cert are provided, check they are valid and match. 
+elif [[ ! -z "$SSL_KEY" ]] && [[ ! -z "$SSL_CERT" ]]; then
+
+  KEYCHECK=`openssl rsa -in "$SSL_KEY" -check 2>&1 | grep --quiet "ok" ; echo $?`
+  if [ "$KEYCHECK" == "1"  ]; then
+    echo "Key is not valid. Configuration failed."
+    exit 1
+  fi
+
+  CACHECK=`openssl x509 -in "$SSL_CERT" -text -noout 2>&1 | grep --quiet "CA:TRUE" ; echo $?`
+  if [ "$CACHECK" == "0" ]; then
+    # This certificate is permitted to act as a Certificate Authority
+    SELFSIGNEDCHECK=`openssl verify "$SSL_CERT" 2>&1 | grep --quiet "self signed certificate"; echo $?`
+    if [ "$SELFSIGNEDCHECK" == "1" ]; then
+      # This certificate is NOT a self signed certificate, so we shouldn't allow it.
+      echo "Cert is not valid. Configuration failed."
+      exit 1
+    fi
+  fi
+
+  KEYMD5=`openssl rsa -noout -modulus -in "$SSL_KEY" | openssl md5 | sed 's/^.*= //'`
+  CERTMD5=`openssl x509 -noout -modulus -in "$SSL_CERT" | openssl md5 | sed 's/^.*= //'`
+  if [ "$KEYMD5" != "$CERTMD5" ]; then
+    echo "Key and Certificate don't match. Configuration failed."
+    exit 1
+  #Passed all tests, we'll configure SSL  .
+  else
+    echo "Enabling SSL."
+    cp /etc/nginx/sites-enabled/site.conf /tmp
+    sed -i -e 's/# listen 443/listen 443/g' /tmp/site.conf
+    sed -i -e 's/# listen \[::\]:443/listen \[::\]:443/g' /tmp/site.conf
+    sed -i -e "/server_name _;/a \        ssl\_certificate\_key ${SSL_KEY}\;" /tmp/site.conf
+    sed -i -e "/server_name _;/a \        ssl\_certificate ${SSL_CERT}\;" /tmp/site.conf
+    cat /tmp/site.conf > /etc/nginx/sites-enabled/site.conf
+  fi
+
+#Otherwise we will fail startup.
+else 
+  echo "Missing either SSL key or cert. Failed to configure SSL, exiting."
+  exit 1
+fi

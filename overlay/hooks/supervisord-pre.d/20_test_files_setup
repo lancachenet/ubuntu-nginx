@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+
+if [ -s /etc/DOCUMENT_ROOT ]; then
+    DOCUMENT_ROOT=`cat /etc/DOCUMENT_ROOT`
+fi
+
+# If our document root is empty - then copy over a suite of test files
+echo -n "Checking if /var/www/$DOCUMENT_ROOT is empty - "
+DOC_CHECK=$(find /var/www/$DOCUMENT_ROOT -maxdepth 0 -empty -exec echo EMPTY \;)
+if [ "$DOC_CHECK" == "EMPTY" ]; then
+  echo "Yes - copying content"
+  cp -Rvp /usr/src/test_scripts/* /var/www/$DOCUMENT_ROOT/
+  exit 0
+else
+  echo "Directory not empty.. don't touch content"
+  exit 0
+fi
+

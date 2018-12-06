@@ -1,0 +1,15 @@
+process:
+  supervisord:
+    running: true
+  nginx:
+    running: true
+port:
+  tcp:80:
+    listening: true
+http:
+  http://localhost/:
+    status: 200
+    allow-insecure: false
+    no-follow-redirects: false
+    timeout: 5000
+    body: [Welcome to the steamcache/ubuntu-nginx docker container]

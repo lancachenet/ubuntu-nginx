@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# Check to see if user has set number of logfiles to keep:
+
+if [ -z $LOGFILE_RETENTION ]; then
+  LOGFILE_RETENTION=7
+fi
+
+# Clean up logfiles older than $LOGFILE_RETNENTION date
+echo "Cleaning up log files older than $LOGFILE_RETENTION days"
+find /var/log/nginx/ -type f -mtime +$LOGFILE_RETENTION -exec rm {} \;
