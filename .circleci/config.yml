@@ -48,11 +48,11 @@ jobs:
           name: Save docker image
           command: |
             mkdir -p workspace
-            docker save -o workspace/steamcache-ubuntu-nginx.tar steamcache/ubuntu-nginx:goss-test
+            docker save -o workspace/lancachenet-ubuntu-nginx.tar lancachenet/ubuntu-nginx:goss-test
       - persist_to_workspace:
           root: workspace
           paths:
-            steamcache-ubuntu-nginx.tar
+            lancachenet-ubuntu-nginx.tar
       - store_test_results:
           path: reports
       - store_artifacts:
@@ -70,9 +70,9 @@ jobs:
           name: "Deploy latest to docker hub"
           command: |
             docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker load -i /tmp/workspace/steamcache-ubuntu-nginx.tar
-            docker tag steamcache/ubuntu-nginx:goss-test steamcache/ubuntu-nginx:latest
-            docker push steamcache/ubuntu-nginx:latest
+            docker load -i /tmp/workspace/lancachenet-ubuntu-nginx.tar
+            docker tag lancachenet/ubuntu-nginx:goss-test lancachenet/ubuntu-nginx:latest
+            docker push lancachenet/ubuntu-nginx:latest
   build_children:
     docker:
       - image: circleci/python:2-jessie
@@ -82,5 +82,5 @@ jobs:
           command: |
               for child in "generic"; do
                  echo "Asking API to trigger build for $child"
-                 curl -X POST --header "Content-Type: application/json" -d '{"branch":"master"}' https://circleci.com/api/v1.1/project/github/steamcache/$child/build?circle-token=${CIRCLE_API_USER_TOKEN}
+                 curl -X POST --header "Content-Type: application/json" -d '{"branch":"master"}' https://circleci.com/api/v1.1/project/github/lancachenet/$child/build?circle-token=${CIRCLE_API_USER_TOKEN}
               done

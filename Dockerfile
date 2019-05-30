@@ -1,5 +1,5 @@
-FROM steamcache/ubuntu:latest
-MAINTAINER SteamCache.Net Team <team@steamcache.net>
+FROM lancachenet/ubuntu:latest
+MAINTAINER LanCache.Net Team <team@lancache.net>
 ARG DEBIAN_FRONTEND=noninteractive
 COPY overlay/ /
 ENV SSL_KEY=/ssl/ssl.key \
