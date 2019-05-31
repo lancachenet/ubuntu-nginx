@@ -12,4 +12,4 @@ http:
     allow-insecure: false
     no-follow-redirects: false
     timeout: 5000
-    body: [Welcome to the steamcache/ubuntu-nginx docker container]
+    body: [Welcome to the lancachenet/ubuntu-nginx docker container]

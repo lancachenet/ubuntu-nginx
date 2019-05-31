@@ -12,11 +12,11 @@ This docker image is not designed for use by anyone outside of the steamcache or
 
 ```bash
 WEB_ROOT="/var/www/"
-docker run  -p ${PORT}:80 -v ${WEB_ROOT}:/var/www/ steamcache/ubuntu-nginx
+docker run  -p ${PORT}:80 -v ${WEB_ROOT}:/var/www/ lancachenet/ubuntu-nginx
 ```
 
 ## Building and testing
 
-To build just run `docker build --tag steamcache/ubuntu:testing .`.
+To build just run `docker build --tag lancachenet/ubuntu:testing .`.
 To test you can run `./run_tests.sh`
 
