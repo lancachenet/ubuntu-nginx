@@ -1,0 +1,14 @@
+map $ssl_preread_server_name $name {
+	backend.example.com      backend;
+	default                  $ssl_preread_server_name;
+}
+
+server {
+	listen	8443;
+	resolver 8.8.8.8 ipv6=off;
+	proxy_pass  $name:443;
+	ssl_preread on;
+
+	access_log /var/log/nginx/stream-access.log stream_basic;
+	error_log /var/log/nginx/stream-error.log;
+}
