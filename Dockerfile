@@ -2,7 +2,10 @@ FROM lancachenet/ubuntu:latest
 MAINTAINER LanCache.Net Team <team@lancache.net>
 ARG DEBIAN_FRONTEND=noninteractive
 COPY overlay/ /
-RUN apt-get update && apt-get install -y nginx-full inotify-tools
+RUN apt-get update && \
+    apt-get install -y nginx-full inotify-tools --no-install-recommends && \
+    apt-get -y clean && \
+    rm -rf /var/lib/apt/lists/*
 RUN \
     chmod 777 /opt/nginx/startnginx.sh && \
     rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default && \
