@@ -5,6 +5,8 @@ LABEL org.opencontainers.image.authors="LanCache.Net Team <team@lancache.net>"
 
 ARG DEBIAN_FRONTEND=noninteractive
 
+SHELL ["/bin/bash", "-c"]
+
 # hadolint ignore=DL3008
 RUN <<EOF
   apt-get update
@@ -17,15 +19,11 @@ COPY --link overlay/ /
 
 RUN <<EOF
   rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
-  mkdir -p /etc/nginx/sites-enabled/
-  mkdir -p /etc/nginx/stream-enabled/
-  for SITE in /etc/nginx/sites-available/*; do [ -e "${SITE}" ] || continue; ln -s "${SITE}" /etc/nginx/sites-enabled/`basename "${SITE}"`; done
-  for SITE in /etc/nginx/stream-available/*; do [ -e "${SITE}" ] || continue; ln -s "${SITE}" /etc/nginx/stream-enabled/`basename "${SITE}"`; done
-  mkdir -p /var/www/html
-  chmod 777 /var/www/html /var/lib/nginx
-  chmod -R 777 /var/log/nginx
-  chmod 755 /var/www
-  chmod -R 666 /etc/nginx/sites-* /etc/nginx/conf.d/* /etc/nginx/stream.d/* /etc/nginx/stream-*
+  mkdir -p /etc/nginx/{sites,stream}-enabled/ /var/lib/nginx /var/www/html
+  chmod -R 664 /etc/nginx/{conf,stream}.d/*
+  for file in /etc/nginx/{sites,stream}-available/*; do
+    ln -s "${file}" "${file/available/enabled}"
+  done
 EOF
 
 EXPOSE 80
