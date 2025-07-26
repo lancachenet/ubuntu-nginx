@@ -13,8 +13,9 @@ RUN <<EOF
   rm -rf /var/lib/apt/lists/*
 EOF
 
+COPY --link overlay/ /
+
 RUN <<EOF
-  chmod 777 /opt/nginx/startnginx.sh
   rm /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
   mkdir -p /etc/nginx/sites-enabled/
   mkdir -p /etc/nginx/stream-enabled/
@@ -23,11 +24,8 @@ RUN <<EOF
   mkdir -p /var/www/html
   chmod 777 /var/www/html /var/lib/nginx
   chmod -R 777 /var/log/nginx
-  chmod -R 755 /hooks /init
   chmod 755 /var/www
   chmod -R 666 /etc/nginx/sites-* /etc/nginx/conf.d/* /etc/nginx/stream.d/* /etc/nginx/stream-*
 EOF
-
-COPY --link overlay/ /
 
 EXPOSE 80
