@@ -4,7 +4,7 @@ This image provides a basic nginx hosting environment. The intent is for the web
 
 ## Updates
 
-Please consult [the official Ubuntu site](https://www.ubuntu.com/info/release-end-of-life) for information on when this version of Ubuntu becomes end of life.
+Please consult [the official Ubuntu site](https://ubuntu.com/about/release-cycle) for information on when this version of Ubuntu becomes end of life.
 
 ## Usage
 
