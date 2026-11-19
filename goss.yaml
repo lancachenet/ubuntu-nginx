@@ -13,3 +13,19 @@ http:
     no-follow-redirects: false
     timeout: 5000
     body: [Welcome to the lancachenet/ubuntu-nginx docker container]
+file:
+  /var/www/html/phpinfo.php:
+    exists: false
+command:
+  apt-lists-empty:
+    exec: "ls /var/lib/apt/lists | grep -v '^partial$' | wc -l"
+    exit-status: 0
+    stdout: ["0"]
+  nginx-conf-clean:
+    exec: "nginx -t 2>&1"
+    exit-status: 0
+    stdout: ["!/warn/"]
+  nginx-stream-module:
+    exec: "nginx -T 2>&1"
+    exit-status: 0
+    stdout: ["load_module modules/ngx_stream_module.so;"]

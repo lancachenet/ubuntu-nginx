@@ -10,6 +10,7 @@ SHELL ["/bin/bash", "-c"]
 # hadolint ignore=DL3008
 RUN <<EOF
   apt-get update
+  apt-get -y upgrade
   apt-get install -y nginx-full inotify-tools --no-install-recommends
   apt-get -y clean
   rm -rf /var/lib/apt/lists/*
